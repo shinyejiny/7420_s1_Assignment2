@@ -20,16 +20,25 @@ function Appointments() {
         .catch(err => console.log(err));
     }, []);
 
-    const cancelAppointment = async (id) => {
-        try {
-            await axios.delete(`http://127.0.0.1:8000/appointments_router/${id}/`, {
-                headers: { Authorization: `Token ${token}` }
-            });
-            setAppointments(appointments.filter(a => a.id !== id));
-        } catch (err) {
-            console.log(err);
-        }
-    };
+const cancelAppointment = async (id) => {
+    try {
+        const appointment = appointments.find(a => a.id === id);
+
+        await axios.patch(`http://127.0.0.1:8000/slots_router/${appointment.slot}/`, {
+            is_booked: false
+        }, {
+            headers: { Authorization: `Token ${token}` }
+        });
+
+        await axios.delete(`http://127.0.0.1:8000/appointments_router/${id}/`, {
+            headers: { Authorization: `Token ${token}` }
+        });
+
+        setAppointments(appointments.filter(a => a.id !== id));
+    } catch (err) {
+        console.log(err);
+    }
+};
 
     return (
         <div>

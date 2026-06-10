@@ -7,6 +7,9 @@ function AdminDashboard() {
     const [appointments, setAppointments] = useState([]);
     const [newDoctor, setNewDoctor] = useState({ name: '', specialty: '' });
     const [newSlot, setNewSlot] = useState({ doctor: '', date: '', time: '' });
+    const [users, setUsers] = useState([]);
+    const [editingDoctorId, setEditingDoctorId] = useState(null);
+    const [editDoctor, setEditDoctor] = useState({ name: '', specialty: '' });
     const token = localStorage.getItem('token');
 
     useEffect(() => {
@@ -17,6 +20,10 @@ function AdminDashboard() {
         axios.get('http://127.0.0.1:8000/slots_router/', {
             headers: { Authorization: `Token ${token}` }
         }).then(res => setSlots(res.data));
+
+        axios.get('http://127.0.0.1:8000/users_router/', {
+            headers: { Authorization: `Token ${token}` }
+        }).then(res => setUsers(res.data));
 
         axios.get('http://127.0.0.1:8000/appointments_router/', {
             headers: { Authorization: `Token ${token}` }
@@ -46,6 +53,17 @@ function AdminDashboard() {
             console.log(err);
         }
     };
+    const updateDoctor = async (id) => {
+    try {
+        await axios.put(`http://127.0.0.1:8000/doctors/${id}/update/`, editDoctor, {
+            headers: { Authorization: `Token ${token}` }
+        });
+        setDoctors(doctors.map(d => d.id === id ? { ...d, ...editDoctor } : d));
+        setEditingDoctorId(null);
+    } catch (err) {
+        console.log(err);
+    }
+};
 
     const addSlot = async (e) => {
         e.preventDefault();
@@ -80,6 +98,28 @@ function AdminDashboard() {
         }
     };
 
+    const deleteSlot = async (id) => {
+    try {
+        await axios.delete(`http://127.0.0.1:8000/slots_router/${id}/`, {
+            headers: { Authorization: `Token ${token}` }
+        });
+        setSlots(slots.filter(s => s.id !== id));
+    } catch (err) {
+        console.log(err);
+    }
+};
+
+    const deleteUser = async (id) => {
+    try {
+        await axios.delete(`http://127.0.0.1:8000/users_router/${id}/`, {
+            headers: { Authorization: `Token ${token}` }
+        });
+        setUsers(users.filter(u => u.id !== id));
+    } catch (err) {
+        console.log(err);
+    }
+};
+
     return (
         <div>
             <h2>Admin Dashboard</h2>
@@ -100,52 +140,45 @@ function AdminDashboard() {
                 />
                 <button type="submit">Add Doctor</button>
             </form>
-
             <h3>Doctors</h3>
             {doctors.map(doctor => (
-                <div key={doctor.id}>
-                    <p>{doctor.name} - {doctor.specialty}</p>
-                    <button onClick={() => deleteDoctor(doctor.id)}>Delete</button>
-                </div>
-            ))}
-
-            <h3>Add Slot</h3>
-            <form onSubmit={addSlot}>
-                <select
-                    value={newSlot.doctor}
-                    onChange={(e) => setNewSlot({ ...newSlot, doctor: e.target.value })}
-                >
-                    <option value="">Select Doctor</option>
-                    {doctors.map(doctor => (
-                        <option key={doctor.id} value={doctor.id}>{doctor.name}</option>
-                    ))}
-                </select>
+            <div key={doctor.id}>
+                {editingDoctorId === doctor.id ? (
+            <div>
                 <input
-                    type="date"
-                    value={newSlot.date}
-                    onChange={(e) => setNewSlot({ ...newSlot, date: e.target.value })}
+                    type="text"
+                    value={editDoctor.name}
+                    onChange={(e) => setEditDoctor({ ...editDoctor, name: e.target.value })}
                 />
                 <input
-                    type="time"
-                    value={newSlot.time}
-                    onChange={(e) => setNewSlot({ ...newSlot, time: e.target.value })}
+                    type="text"
+                    value={editDoctor.specialty}
+                    onChange={(e) => setEditDoctor({ ...editDoctor, specialty: e.target.value })}
                 />
-                <button type="submit">Add Slot</button>
-            </form>
-
+                <button onClick={() => updateDoctor(doctor.id)}>Save</button>
+                <button onClick={() => setEditingDoctorId(null)}>Cancel</button>
+            </div>
+        ) : (
+            <div>
+                <p>{doctor.name} - {doctor.specialty}</p>
+                <button onClick={() => { setEditingDoctorId(doctor.id); setEditDoctor({ name: doctor.name, specialty: doctor.specialty }); }}>Edit</button>
+                <button onClick={() => deleteDoctor(doctor.id)}>Delete</button>
+            </div>
+        )}
+    </div>
+))}
             <h3>All Slots</h3>
             {slots.map(slot => (
                 <div key={slot.id}>
                     <p>Date: {slot.date} | Time: {slot.time} | Booked: {slot.is_booked ? 'Yes' : 'No'}</p>
+                    <button onClick={() => deleteSlot(slot.id)}>Delete</button>
                 </div>
             ))}
-
-            <h3>All Appointments</h3>
-            {appointments.length === 0 && <p>No appointments.</p>}
-            {appointments.map(appointment => (
-                <div key={appointment.id}>
-                    <p>Appointment ID: {appointment.id} | Slot: {appointment.slot} | Status: {appointment.status}</p>
-                    <button onClick={() => cancelAppointment(appointment.id)}>Cancel</button>
+            <h3>Patient Accounts</h3>
+            {users.filter(u => u.is_patient).map(user => (
+                <div key={user.id}>
+                    <p>{user.username} - {user.email}</p>
+                    <button onClick={() => deleteUser(user.id)}>Delete</button>
                 </div>
             ))}
         </div>

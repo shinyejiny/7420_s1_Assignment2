@@ -4,41 +4,79 @@ import axios from 'axios';
 function Appointments() {
     const [appointments, setAppointments] = useState([]);
     const [slots, setSlots] = useState([]);
+    const [editingId, setEditingId] = useState(null);
+    const [availableSlots, setAvailableSlots] = useState([]);
+    const [selectedSlot, setSelectedSlot] = useState('');
     const token = localStorage.getItem('token');
 
     useEffect(() => {
         axios.get('http://127.0.0.1:8000/appointments_router/', {
             headers: { Authorization: `Token ${token}` }
-        })
-        .then(res => setAppointments(res.data))
-        .catch(err => console.log(err));
+        }).then(res => setAppointments(res.data));
 
         axios.get('http://127.0.0.1:8000/slots_router/', {
             headers: { Authorization: `Token ${token}` }
-        })
-        .then(res => setSlots(res.data))
-        .catch(err => console.log(err));
+        }).then(res => setSlots(res.data));
     }, []);
 
-const cancelAppointment = async (id) => {
-    try {
-        const appointment = appointments.find(a => a.id === id);
+    const cancelAppointment = async (id) => {
+        try {
+            const appointment = appointments.find(a => a.id === id);
+            await axios.patch(`http://127.0.0.1:8000/slots_router/${appointment.slot}/`, {
+                is_booked: false
+            }, {
+                headers: { Authorization: `Token ${token}` }
+            });
+            await axios.delete(`http://127.0.0.1:8000/appointments_router/${id}/`, {
+                headers: { Authorization: `Token ${token}` }
+            });
+            setAppointments(appointments.filter(a => a.id !== id));
+        } catch (err) {
+            console.log(err);
+        }
+    };
 
-        await axios.patch(`http://127.0.0.1:8000/slots_router/${appointment.slot}/`, {
-            is_booked: false
-        }, {
-            headers: { Authorization: `Token ${token}` }
-        });
+    const startEdit = (appointment) => {
+        setEditingId(appointment.id);
+        setAvailableSlots(slots.filter(s => !s.is_booked));
+        setSelectedSlot('');
+    };
 
-        await axios.delete(`http://127.0.0.1:8000/appointments_router/${id}/`, {
-            headers: { Authorization: `Token ${token}` }
-        });
-
-        setAppointments(appointments.filter(a => a.id !== id));
-    } catch (err) {
-        console.log(err);
-    }
-};
+    const saveEdit = async (id) => {
+        try {
+            const appointment = appointments.find(a => a.id === id);
+            // 기존 슬롯 해제
+            await axios.patch(`http://127.0.0.1:8000/slots_router/${appointment.slot}/`, {
+                is_booked: false
+            }, {
+                headers: { Authorization: `Token ${token}` }
+            });
+            // 새 슬롯 업데이트
+            await axios.patch(`http://127.0.0.1:8000/appointments_router/${id}/`, {
+                slot: selectedSlot
+            }, {
+                headers: { Authorization: `Token ${token}` }
+            });
+            // 새 슬롯 booked로
+            await axios.patch(`http://127.0.0.1:8000/slots_router/${selectedSlot}/`, {
+                is_booked: true
+            }, {
+                headers: { Authorization: `Token ${token}` }
+            });
+            // 데이터 새로고침
+            const res = await axios.get('http://127.0.0.1:8000/appointments_router/', {
+                headers: { Authorization: `Token ${token}` }
+            });
+            setAppointments(res.data);
+            const slotsRes = await axios.get('http://127.0.0.1:8000/slots_router/', {
+                headers: { Authorization: `Token ${token}` }
+            });
+            setSlots(slotsRes.data);
+            setEditingId(null);
+        } catch (err) {
+            console.log(err);
+        }
+    };
 
     return (
         <div>
@@ -51,9 +89,25 @@ const cancelAppointment = async (id) => {
                         <p>Date: {slot ? slot.date : 'N/A'}</p>
                         <p>Time: {slot ? slot.time : 'N/A'}</p>
                         <p>Status: {appointment.status}</p>
-                        <button onClick={() => cancelAppointment(appointment.id)}>
-                            Cancel
-                        </button>
+                        {editingId === appointment.id ? (
+                            <div>
+                                <select onChange={(e) => setSelectedSlot(e.target.value)} value={selectedSlot}>
+                                    <option value="">Select new slot</option>
+                                    {availableSlots.map(s => (
+                                        <option key={s.id} value={s.id}>
+                                            {s.date} {s.time}
+                                        </option>
+                                    ))}
+                                </select>
+                                <button onClick={() => saveEdit(appointment.id)} disabled={!selectedSlot}>Save</button>
+                                <button onClick={() => setEditingId(null)}>Cancel Edit</button>
+                            </div>
+                        ) : (
+                            <div>
+                                <button onClick={() => startEdit(appointment)}>Edit</button>
+                                <button onClick={() => cancelAppointment(appointment.id)}>Cancel</button>
+                            </div>
+                        )}
                     </div>
                 );
             })}

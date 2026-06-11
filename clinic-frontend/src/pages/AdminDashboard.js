@@ -12,20 +12,21 @@ function AdminDashboard() {
     const [editDoctor, setEditDoctor] = useState({ name: '', specialty: '' });
     const token = localStorage.getItem('token');
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => {
-        axios.get('http://127.0.0.1:8000/doctors/', {
+        axios.get('https://7420-s1-assignment2.vercel.app/doctors/', {
             headers: { Authorization: `Token ${token}` }
         }).then(res => setDoctors(res.data));
 
-        axios.get('http://127.0.0.1:8000/slots_router/', {
+        axios.get('https://7420-s1-assignment2.vercel.app/slots_router/', {
             headers: { Authorization: `Token ${token}` }
         }).then(res => setSlots(res.data));
 
-        axios.get('http://127.0.0.1:8000/appointments_router/', {
+        axios.get('https://7420-s1-assignment2.vercel.app/appointments_router/', {
             headers: { Authorization: `Token ${token}` }
         }).then(res => setAppointments(res.data));
 
-        axios.get('http://127.0.0.1:8000/users_router/', {
+        axios.get('https://7420-s1-assignment2.vercel.app/users_router/', {
             headers: { Authorization: `Token ${token}` }
         }).then(res => setUsers(res.data));
     }, []);
@@ -33,7 +34,7 @@ function AdminDashboard() {
     const addDoctor = async (e) => {
         e.preventDefault();
         try {
-            const res = await axios.post('http://127.0.0.1:8000/doctors/create/', newDoctor, {
+            const res = await axios.post('https://7420-s1-assignment2.vercel.app/doctors/create/', newDoctor, {
                 headers: { Authorization: `Token ${token}` }
             });
             setDoctors([...doctors, res.data]);
@@ -45,7 +46,7 @@ function AdminDashboard() {
 
     const deleteDoctor = async (id) => {
         try {
-            await axios.delete(`http://127.0.0.1:8000/doctors_router/${id}/`, {
+            await axios.delete(`https://7420-s1-assignment2.vercel.app/doctors_router/${id}/`, {
                 headers: { Authorization: `Token ${token}` }
             });
             setDoctors(doctors.filter(d => d.id !== id));
@@ -56,7 +57,7 @@ function AdminDashboard() {
 
     const updateDoctor = async (id) => {
         try {
-            await axios.put(`http://127.0.0.1:8000/doctors/${id}/update/`, editDoctor, {
+            await axios.put(`https://7420-s1-assignment2.vercel.app/doctors/${id}/update/`, editDoctor, {
                 headers: { Authorization: `Token ${token}` }
             });
             setDoctors(doctors.map(d => d.id === id ? { ...d, ...editDoctor } : d));
@@ -69,7 +70,7 @@ function AdminDashboard() {
     const addSlot = async (e) => {
         e.preventDefault();
         try {
-            const res = await axios.post('http://127.0.0.1:8000/slots_router/', {
+            const res = await axios.post('https://7420-s1-assignment2.vercel.app/slots_router/', {
             ...newSlot,
             is_booked: false
             }, {
@@ -83,7 +84,7 @@ function AdminDashboard() {
     };
     const deleteSlot = async (id) => {
         try {
-            await axios.delete(`http://127.0.0.1:8000/slots_router/${id}/`, {
+            await axios.delete(`https://7420-s1-assignment2.vercel.app/slots_router/${id}/`, {
                 headers: { Authorization: `Token ${token}` }
             });
             setSlots(slots.filter(s => s.id !== id));
@@ -95,12 +96,12 @@ function AdminDashboard() {
     const cancelAppointment = async (id) => {
         try {
             const appointment = appointments.find(a => a.id === id);
-            await axios.patch(`http://127.0.0.1:8000/slots_router/${appointment.slot}/`, {
+            await axios.patch(`https://7420-s1-assignment2.vercel.app/slots_router/${appointment.slot}/`, {
                 is_booked: false
             }, {
                 headers: { Authorization: `Token ${token}` }
             });
-            await axios.delete(`http://127.0.0.1:8000/appointments_router/${id}/`, {
+            await axios.delete(`https://7420-s1-assignment2.vercel.app/appointments_router/${id}/`, {
                 headers: { Authorization: `Token ${token}` }
             });
             setAppointments(appointments.filter(a => a.id !== id));
@@ -111,7 +112,7 @@ function AdminDashboard() {
 
     const deleteUser = async (id) => {
         try {
-            await axios.delete(`http://127.0.0.1:8000/users_router/${id}/`, {
+            await axios.delete(`https://7420-s1-assignment2.vercel.app/users_router/${id}/`, {
                 headers: { Authorization: `Token ${token}` }
             });
             setUsers(users.filter(u => u.id !== id));

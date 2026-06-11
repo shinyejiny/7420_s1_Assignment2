@@ -8,13 +8,13 @@ function Appointments() {
     const [availableSlots, setAvailableSlots] = useState([]);
     const [selectedSlot, setSelectedSlot] = useState('');
     const token = localStorage.getItem('token');
-
+// eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => {
-        axios.get('http://127.0.0.1:8000/appointments_router/', {
+        axios.get('https://7420-s1-assignment2.vercel.app/appointments_router/', {
             headers: { Authorization: `Token ${token}` }
         }).then(res => setAppointments(res.data));
 
-        axios.get('http://127.0.0.1:8000/slots_router/', {
+        axios.get('https://7420-s1-assignment2.vercel.app/slots_router/', {
             headers: { Authorization: `Token ${token}` }
         }).then(res => setSlots(res.data));
     }, []);
@@ -22,12 +22,12 @@ function Appointments() {
     const cancelAppointment = async (id) => {
         try {
             const appointment = appointments.find(a => a.id === id);
-            await axios.patch(`http://127.0.0.1:8000/slots_router/${appointment.slot}/`, {
+            await axios.patch(`https://7420-s1-assignment2.vercel.app/slots_router/${appointment.slot}/`, {
                 is_booked: false
             }, {
                 headers: { Authorization: `Token ${token}` }
             });
-            await axios.delete(`http://127.0.0.1:8000/appointments_router/${id}/`, {
+            await axios.delete(`https://7420-s1-assignment2.vercel.app/appointments_router/${id}/`, {
                 headers: { Authorization: `Token ${token}` }
             });
             setAppointments(appointments.filter(a => a.id !== id));
@@ -45,26 +45,26 @@ function Appointments() {
     const saveEdit = async (id) => {
         try {
             const appointment = appointments.find(a => a.id === id);
-            await axios.patch(`http://127.0.0.1:8000/slots_router/${appointment.slot}/`, {
+            await axios.patch(`https://7420-s1-assignment2.vercel.app/slots_router/${appointment.slot}/`, {
                 is_booked: false
             }, {
                 headers: { Authorization: `Token ${token}` }
             });
-            await axios.patch(`http://127.0.0.1:8000/appointments_router/${id}/`, {
+            await axios.patch(`https://7420-s1-assignment2.vercel.app/appointments_router/${id}/`, {
                 slot: selectedSlot
             }, {
                 headers: { Authorization: `Token ${token}` }
             });
-            await axios.patch(`http://127.0.0.1:8000/slots_router/${selectedSlot}/`, {
+            await axios.patch(`https://7420-s1-assignment2.vercel.app/slots_router/${selectedSlot}/`, {
                 is_booked: true
             }, {
                 headers: { Authorization: `Token ${token}` }
             });
-            const res = await axios.get('http://127.0.0.1:8000/appointments_router/', {
+            const res = await axios.get('https://7420-s1-assignment2.vercel.app/appointments_router/', {
                 headers: { Authorization: `Token ${token}` }
             });
             setAppointments(res.data);
-            const slotsRes = await axios.get('http://127.0.0.1:8000/slots_router/', {
+            const slotsRes = await axios.get('https://7420-s1-assignment2.vercel.app/slots_router/', {
                 headers: { Authorization: `Token ${token}` }
             });
             setSlots(slotsRes.data);

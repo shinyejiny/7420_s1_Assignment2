@@ -6,31 +6,32 @@ function DoctorList() {
     const [slots, setSlots] = useState([]);
     const token = localStorage.getItem('token');
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => {
-        axios.get('http://127.0.0.1:8000/doctors/', {
+        axios.get('https://7420-s1-assignment2.vercel.app/doctors/', {
             headers: { Authorization: `Token ${token}` }
         }).then(res => setDoctors(res.data));
 
-        axios.get('http://127.0.0.1:8000/slots_router/', {
+        axios.get('https://7420-s1-assignment2.vercel.app/slots_router/', {
             headers: { Authorization: `Token ${token}` }
         }).then(res => setSlots(res.data));
     }, []);
 
     const bookSlot = async (slotId) => {
         try {
-            await axios.post('http://127.0.0.1:8000/appointments_router/', {
+            await axios.post('https://7420-s1-assignment2.vercel.app/appointments_router/', {
                 slot: slotId,
                 status: 'booked'
             }, {
                 headers: { Authorization: `Token ${token}` }
             });
-            await axios.patch(`http://127.0.0.1:8000/slots_router/${slotId}/`, {
+            await axios.patch(`https://7420-s1-assignment2.vercel.app/slots_router/${slotId}/`, {
                 is_booked: true
             }, {
                 headers: { Authorization: `Token ${token}` }
             });
             alert('Appointment booked successfully!');
-            const res = await axios.get('http://127.0.0.1:8000/slots_router/', {
+            const res = await axios.get('https://7420-s1-assignment2.vercel.app/slots_router/', {
                 headers: { Authorization: `Token ${token}` }
             });
             setSlots(res.data);

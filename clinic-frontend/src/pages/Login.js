@@ -9,19 +9,19 @@ function Login() {
     const handleLogin = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post('http://127.0.0.1:8000/auth/', {
+            const response = await axios.post('https://7420-s1-assignment2.vercel.app/auth/', {
                 username,
                 password
             });
             localStorage.setItem('token', response.data.token);
             localStorage.setItem('username', username);
 
-            const userRes = await axios.get('http://127.0.0.1:8000/auth/get_auth_id/', {
+            const userRes = await axios.get('https://7420-s1-assignment2.vercel.app/auth/get_auth_id/', {
                 headers: { Authorization: `Token ${response.data.token}` }
             });
             const userId = userRes.data;
 
-            const userDetail = await axios.get(`http://127.0.0.1:8000/users_router/${userId}/`, {
+            const userDetail = await axios.get(`https://7420-s1-assignment2.vercel.app/users_router/${userId}/`, {
                 headers: { Authorization: `Token ${response.data.token}` }
             });
             localStorage.setItem('isAdmin', userDetail.data.is_admin);

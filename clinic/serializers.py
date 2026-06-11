@@ -10,6 +10,13 @@ class SlotSerializer(serializers.ModelSerializer):
     class Meta:
         model = Slot
         fields = '__all__'
+    def validate(self, data):
+        doctor = data.get('doctor')
+        date = data.get('date')
+        time = data.get('time')
+        if Slot.objects.filter(doctor=doctor, date=date, time=time).exists():
+            raise serializers.ValidationError("This slot already exists for this doctor.")
+        return data
 
 
 class AppointmentSerializer(serializers.ModelSerializer):

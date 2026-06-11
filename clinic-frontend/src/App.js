@@ -14,14 +14,16 @@ function App() {
     return (
         <Router>
             <Navbar />
-            <Routes>
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
-                <Route path="/doctors" element={token ? <DoctorList /> : <Navigate to="/login" />} />
-                <Route path="/appointments" element={token ? <Appointments /> : <Navigate to="/login" />} />
-                <Route path="/admin" element={isAdmin ? <AdminDashboard /> : <Navigate to="/login" />} />
-                <Route path="/" element={<Login />} />
-            </Routes>
+            <div className="container mt-4">
+                <Routes>
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/register" element={<Register />} />
+                    <Route path="/doctors" element={token ? <DoctorList /> : <Navigate to="/login" />} />
+                    <Route path="/appointments" element={token ? <Appointments /> : <Navigate to="/login" />} />
+                    <Route path="/admin" element={isAdmin ? <AdminDashboard /> : <Navigate to="/login" />} />
+                    <Route path="/" element={<Login />} />
+                </Routes>
+            </div>
         </Router>
     );
 }

@@ -3,25 +3,26 @@ import React from 'react';
 function Navbar() {
     const token = localStorage.getItem('token');
     const username = localStorage.getItem('username');
+    const isAdmin = localStorage.getItem('isAdmin') === 'true';
 
     const handleLogout = () => {
         localStorage.removeItem('token');
         localStorage.removeItem('username');
+        localStorage.removeItem('isAdmin');
         window.location.href = '/login';
     };
 
     return (
-        <nav>
-            <span>Piki Ora Medical Centre</span>
+        <nav className="navbar navbar-expand-lg navbar-dark bg-primary px-4">
+            <span className="navbar-brand fw-bold">🏥 Piki Ora Medical Centre</span>
             {token && (
-                <span>
-                    &nbsp;| &nbsp;
-                    <a href="/doctors">Doctors</a> &nbsp;|&nbsp;
-                    <a href="/appointments">My Appointments</a> &nbsp;|&nbsp;
-                    <a href="/admin">Admin</a> &nbsp;|&nbsp;
-                    <span>Hi, {username}</span> &nbsp;|&nbsp;
-                    <button onClick={handleLogout}>Logout</button>
-                </span>
+                <div className="d-flex align-items-center gap-3 ms-auto">
+                    <a href="/doctors" className="nav-link text-white">Doctors</a>
+                    <a href="/appointments" className="nav-link text-white">My Appointments</a>
+                    {isAdmin && <a href="/admin" className="nav-link text-white">Admin</a>}
+                    <span className="text-white">Hi, {username}</span>
+                    <button onClick={handleLogout} className="btn btn-outline-light btn-sm">Logout</button>
+                </div>
             )}
         </nav>
     );

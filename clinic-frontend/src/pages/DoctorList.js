@@ -16,45 +16,59 @@ function DoctorList() {
         }).then(res => setSlots(res.data));
     }, []);
 
-const bookSlot = async (slotId) => {
-    try {
-        await axios.post('http://127.0.0.1:8000/appointments_router/', {
-            slot: slotId,
-            status: 'booked'
-        }, {
-            headers: { Authorization: `Token ${token}` }
-        });
-        await axios.patch(`http://127.0.0.1:8000/slots_router/${slotId}/`, {
-            is_booked: true
-        }, {
-            headers: { Authorization: `Token ${token}` }
-        });
-        alert('Appointment booked successfully!');
-        // window.location.reload() 지우고 이걸로
-        const res = await axios.get('http://127.0.0.1:8000/slots_router/', {
-            headers: { Authorization: `Token ${token}` }
-        });
-        setSlots(res.data);
-    } catch (err) {
-        alert('Booking failed. Slot may already be booked.');
-    }
-};
+    const bookSlot = async (slotId) => {
+        try {
+            await axios.post('http://127.0.0.1:8000/appointments_router/', {
+                slot: slotId,
+                status: 'booked'
+            }, {
+                headers: { Authorization: `Token ${token}` }
+            });
+            await axios.patch(`http://127.0.0.1:8000/slots_router/${slotId}/`, {
+                is_booked: true
+            }, {
+                headers: { Authorization: `Token ${token}` }
+            });
+            alert('Appointment booked successfully!');
+            const res = await axios.get('http://127.0.0.1:8000/slots_router/', {
+                headers: { Authorization: `Token ${token}` }
+            });
+            setSlots(res.data);
+        } catch (err) {
+            alert('Booking failed. Slot may already be booked.');
+        }
+    };
 
     return (
         <div>
-            <h2>Available Doctors</h2>
-            {doctors.map(doctor => (
-                <div key={doctor.id}>
-                    <h3>{doctor.name} - {doctor.specialty}</h3>
-                    <h4>Available Slots:</h4>
-                    {slots.filter(s => s.doctor === doctor.id && !s.is_booked).map(slot => (
-                        <div key={slot.id}>
-                            <p>Date: {slot.date} | Time: {slot.time}</p>
-                            <button onClick={() => bookSlot(slot.id)}>Book</button>
+            <h2 className="mb-4">Available Doctors</h2>
+            <div className="row">
+                {doctors.map(doctor => (
+                    <div key={doctor.id} className="col-md-6 mb-4">
+                        <div className="card shadow-sm">
+                            <div className="card-body">
+                                <h4 className="card-title">{doctor.name}</h4>
+                                <p className="text-muted">Specialty: {doctor.specialty}</p>
+                                <h6>Available Slots:</h6>
+                                {slots.filter(s => s.doctor === doctor.id && !s.is_booked).length === 0 && (
+                                    <p className="text-danger">No available slots</p>
+                                )}
+                                {slots.filter(s => s.doctor === doctor.id && !s.is_booked).map(slot => (
+                                    <div key={slot.id} className="d-flex justify-content-between align-items-center mb-2">
+                                        <span>📅 {slot.date} ⏰ {slot.time}</span>
+                                        <button
+                                            className="btn btn-success btn-sm"
+                                            onClick={() => bookSlot(slot.id)}
+                                        >
+                                            Book
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
-                    ))}
-                </div>
-            ))}
+                    </div>
+                ))}
+            </div>
         </div>
     );
 }

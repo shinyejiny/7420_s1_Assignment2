@@ -1,0 +1,15 @@
+GitHub Repository (Django REST Framework):
+https://github.com/shinyejiny/7420_s1_Assignment2
+
+GitHub Repository (React JS):
+https://github.com/shinyejiny/7420_s1_Assignment2/tree/main/clinic-frontend
+
+Vercel Deployment URL (Django REST Framework):
+https://7420-s1-assignment2.vercel.app
+
+Vercel Deployment URL (React JS):
+https://clinic-frontend-sable.vercel.app
+
+Admin Login Credentials:
+Username: admin1
+Password: [AdminPass123!]

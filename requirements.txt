@@ -5,3 +5,6 @@ django-filter
 djangorestframework-simplejwt
 pillow
 django-ckeditor
+psycopg2-binary
+dj-database-url
+python-dotenv

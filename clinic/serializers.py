@@ -28,4 +28,21 @@ class AppointmentSerializer(serializers.ModelSerializer):
     def validate_slot(self, value):
         if value.is_booked:
             raise serializers.ValidationError("This slot is already booked.")
+
+        user = self.context['request'].user
+        same_time = Appointment.objects.filter(
+            user=user,
+            slot__date=value.date,
+            slot__time=value.time
+        ).exists()
+        if same_time:
+            raise serializers.ValidationError("You already have an appointment at this time")
+
+        same_doctor_day = Appointment.objects.filter(
+            user=user,
+            slot__doctor=value.doctor,
+            slot__date=value.date
+        ).exists()
+        if same_doctor_day:
+            raise serializers.ValidationError("You already have an appointment with this doctor")
         return value

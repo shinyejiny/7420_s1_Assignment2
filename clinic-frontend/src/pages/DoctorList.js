@@ -31,7 +31,10 @@ function DoctorList() {
             });
             setSlots(res.data);
         } catch (err) {
-            alert('Booking failed. Slot may already be booked.');
+            const errorMsg = err.response?.data?.slot?.[0]
+                || err.response?.data?.detail
+                || 'Booking failed.';
+            alert(errorMsg);
         }
     };
 

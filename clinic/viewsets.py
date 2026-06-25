@@ -30,7 +30,7 @@ class AppointmentViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         if self.request.user.is_anonymous:
             raise Http404("Login first.")
-        serializer.save(user=self.request.user)
+        appointment = serializer.save(user=self.request.user)
         appointment.slot.is_booked = True
         appointment.slot.save()
 

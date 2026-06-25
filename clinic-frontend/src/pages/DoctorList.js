@@ -25,11 +25,6 @@ function DoctorList() {
             }, {
                 headers: { Authorization: `Token ${token}` }
             });
-            await axios.patch(`https://7420-s1-assignment2.vercel.app/slots_router/${slotId}/`, {
-                is_booked: true
-            }, {
-                headers: { Authorization: `Token ${token}` }
-            });
             alert('Appointment booked successfully!');
             const res = await axios.get('https://7420-s1-assignment2.vercel.app/slots_router/', {
                 headers: { Authorization: `Token ${token}` }

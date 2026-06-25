@@ -36,6 +36,7 @@ function DoctorList() {
                 || 'Booking failed.';
             alert(errorMsg);
         }
+
     };
 
     return (

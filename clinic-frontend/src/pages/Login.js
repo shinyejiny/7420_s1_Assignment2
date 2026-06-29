@@ -25,11 +25,14 @@ function Login() {
                 headers: { Authorization: `Token ${response.data.token}` }
             });
             localStorage.setItem('isAdmin', userDetail.data.is_admin);
+            localStorage.setItem('isDoctor', userDetail.data.is_doctor)
 
             if (userDetail.data.is_admin) {
                 window.location.href = '/admin';
+            } else if (userDetail.data.is_doctor){
+                window.location.href = ('/doctors-dashboard');
             } else {
-                window.location.href = '/doctors';
+                window.location.href=('/doctors');
             }
         } catch (err) {
             console.log(err);

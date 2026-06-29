@@ -4,6 +4,12 @@ from django.conf import settings
 User = settings.AUTH_USER_MODEL
 
 class Doctor(models.Model):
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+    )
     name = models.CharField(max_length=100)
     specialty = models.CharField(max_length=100)
 

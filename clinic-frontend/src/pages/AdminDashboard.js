@@ -6,7 +6,12 @@ function AdminDashboard() {
     const [slots, setSlots] = useState([]);
     const [appointments, setAppointments] = useState([]);
     const [users, setUsers] = useState([]);
-    const [newDoctor, setNewDoctor] = useState({ name: '', specialty: '' });
+    const [newDoctor, setNewDoctor] = useState({
+        name: '',
+        specialty: '',
+        username: '',
+        password: ''
+    });
     const [newSlot, setNewSlot] = useState({ doctor: '', date: '', time: '' });
     const [editingDoctorId, setEditingDoctorId] = useState(null);
     const [editDoctor, setEditDoctor] = useState({ name: '', specialty: '' });
@@ -38,7 +43,7 @@ function AdminDashboard() {
                 headers: { Authorization: `Token ${token}` }
             });
             setDoctors([...doctors, res.data]);
-            setNewDoctor({ name: '', specialty: '' });
+            setNewDoctor({ name: '', specialty: '', username: '', password: '' });
         } catch (err) {
             console.log(err);
         }
@@ -144,6 +149,20 @@ function AdminDashboard() {
                             value={newDoctor.specialty}
                             onChange={(e) => setNewDoctor({ ...newDoctor, specialty: e.target.value })}
                         />
+                        <input
+                            type="text"
+                            className="form-control"
+                            placeholder="Username (for doctor login)"
+                            value={newDoctor.username}
+                            onChange={(e) => setNewDoctor({ ...newDoctor, username: e.target.value })}
+                        />
+                        <input
+                            type="password"
+                            className="form-control"
+                            placeholder="Password (for doctor login)"
+                            value={newDoctor.password}
+                            onChange={(e) => setNewDoctor({ ...newDoctor, password: e.target.value })}
+                        />
                         <button type="submit" className="btn btn-primary">Add</button>
                     </form>
                 </div>
@@ -169,6 +188,7 @@ function AdminDashboard() {
                                         value={editDoctor.specialty}
                                         onChange={(e) => setEditDoctor({ ...editDoctor, specialty: e.target.value })}
                                     />
+
                                     <button className="btn btn-success btn-sm" onClick={() => updateDoctor(doctor.id)}>Save</button>
                                     <button className="btn btn-secondary btn-sm" onClick={() => setEditingDoctorId(null)}>Cancel</button>
                                 </div>

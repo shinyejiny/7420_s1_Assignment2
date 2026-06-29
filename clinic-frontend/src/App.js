@@ -6,6 +6,7 @@ import DoctorList from './pages/DoctorList';
 import Appointments from './pages/Appointments';
 import AdminDashboard from './pages/AdminDashboard';
 import Navbar from './components/Navbar';
+import DoctorDashboard from './pages/DoctorDashboard';
 
 function App() {
     const token = localStorage.getItem('token');
@@ -22,7 +23,9 @@ function App() {
                     <Route path="/appointments" element={token ? <Appointments /> : <Navigate to="/login" />} />
                     <Route path="/admin" element={isAdmin ? <AdminDashboard /> : <Navigate to="/login" />} />
                     <Route path="/" element={<Login />} />
-                </Routes>
+                    <Route path="/doctor-dashboard"
+                    element={token ? <DoctorDashboard /> : <Navigate to="/login" />}
+/>                </Routes>
             </div>
         </Router>
     );

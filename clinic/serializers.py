@@ -1,10 +1,26 @@
+from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from .models import Doctor, Slot, Appointment
 
 class DoctorSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Doctor
-        fields = '__all__'
+        username = serializers.CharField(write_only=True, required=False)
+        password = serializers.CharField(write_only=True, required=False)
+
+        class Meta:
+            model = Doctor
+            fields = ['id', 'name', 'specialty', 'username', 'password']
+
+        def create(self, validated_data):
+            username = validated_data.pop('username', None)
+            password = validated_data.pop('password', None)
+
+            doctor = Doctor.objects.create(**validated_data)
+            if username and password:
+                User = get_user_model()
+                user = User.objects.create_user(username, password=password)
+                doctor.user = user
+                doctor.save()
+            return doctor
 
 class SlotSerializer(serializers.ModelSerializer):
     class Meta:

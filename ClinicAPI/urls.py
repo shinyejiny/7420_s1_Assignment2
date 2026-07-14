@@ -18,10 +18,14 @@ from django.contrib import admin
 from django.urls import path, include
 
 from accounts.views import doctor_appointment
+from clinic.views import doctor_add_slot, doctor_slots, doctor_update_appointment
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('clinic.urls')),
     path('', include('accounts.urls')),
-    path('doctor_appointment/', doctor_appointment)
+    path('doctor_appointment/', doctor_appointment),
+    path('doctor-slots/', doctor_slots),
+    path('doctor-add-slot/', doctor_add_slot),
+    path('doctor-appointments/<int:pk>/update/', doctor_update_appointment),
 ]

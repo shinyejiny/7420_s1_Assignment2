@@ -214,19 +214,16 @@ function AdminDashboard() {
                             {editingSlotId === slot.id ? (
                                 <div className="d-flex gap-2 w-100">
                                     <input type="date" className="form-control" value={editSlot.date} min={today} onChange={e => setEditSlot({ ...editSlot, date: e.target.value })} />
-                                    <select className="form-control" value={editSlot.time} onChange={e => setEditSlot({ ...editSlot, time: e.target.value })}>
-                                        <option value="">Select Time</option>
-                                        <option value="08:00">08:00 AM</option>
-                                        <option value="09:00">09:00 AM</option>
-                                        <option value="10:00">10:00 AM</option>
-                                        <option value="11:00">11:00 AM</option>
-                                        <option value="12:00">12:00 PM</option>
-                                        <option value="13:00">01:00 PM</option>
-                                        <option value="14:00">02:00 PM</option>
-                                        <option value="15:00">03:00 PM</option>
-                                        <option value="16:00">04:00 PM</option>
-                                        <option value="17:00">05:00 PM</option>
-                                    </select>
+                                    <select
+    className="form-control"
+    value={newSlot.time}
+    onChange={e => setNewSlot({ ...newSlot, time: e.target.value })}
+>
+    <option value="">Select Time</option>
+    {getAvailableTimes(newSlot.date).map(t => (
+        <option key={t.value} value={t.value}>{t.label}</option>
+    ))}
+</select>
                                     <button className="btn btn-success btn-sm" onClick={() => updateSlot(slot.id)}>Save</button>
                                     <button className="btn btn-secondary btn-sm" onClick={() => setEditingSlotId(null)}>Cancel</button>
                                 </div>

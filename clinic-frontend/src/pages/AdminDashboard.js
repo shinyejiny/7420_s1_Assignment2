@@ -1,168 +1,150 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
+const API = 'https://7420-s1-assignment2.vercel.app';
+
 function AdminDashboard() {
     const [doctors, setDoctors] = useState([]);
     const [slots, setSlots] = useState([]);
     const [appointments, setAppointments] = useState([]);
     const [users, setUsers] = useState([]);
-    const [newDoctor, setNewDoctor] = useState({
-        name: '',
-        specialty: '',
-        username: '',
-        password: ''
-    });
+    const [newDoctor, setNewDoctor] = useState({ name: '', specialty: '', username: '', password: '' });
     const [newSlot, setNewSlot] = useState({ doctor: '', date: '', time: '' });
+    const [newPatient, setNewPatient] = useState({ username: '', email: '', password: '' });
+    const [newBooking, setNewBooking] = useState({ user: '', slot: '' });
     const [editingDoctorId, setEditingDoctorId] = useState(null);
     const [editDoctor, setEditDoctor] = useState({ name: '', specialty: '' });
+    const [editingSlotId, setEditingSlotId] = useState(null);
+    const [editSlot, setEditSlot] = useState({ date: '', time: '' });
+    const [editingAppointmentId, setEditingAppointmentId] = useState(null);
+    const [editAppointment, setEditAppointment] = useState({ slot: '' });
     const token = localStorage.getItem('token');
+    const headers = { Authorization: `Token ${token}` };
+    const today = new Date().toISOString().split('T')[0];
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => {
-        axios.get('https://7420-s1-assignment2.vercel.app/doctors/', {
-            headers: { Authorization: `Token ${token}` }
-        }).then(res => setDoctors(res.data));
-
-        axios.get('https://7420-s1-assignment2.vercel.app/slots_router/', {
-            headers: { Authorization: `Token ${token}` }
-        }).then(res => setSlots(res.data));
-
-        axios.get('https://7420-s1-assignment2.vercel.app/appointments_router/', {
-            headers: { Authorization: `Token ${token}` }
-        }).then(res => setAppointments(res.data));
-
-        axios.get('https://7420-s1-assignment2.vercel.app/users_router/', {
-            headers: { Authorization: `Token ${token}` }
-        }).then(res => setUsers(res.data));
+        fetchAll();
     }, []);
+
+    const fetchAll = () => {
+        axios.get(`${API}/doctors/`, { headers }).then(res => setDoctors(res.data));
+        axios.get(`${API}/slots_router/`, { headers }).then(res => setSlots(res.data));
+        axios.get(`${API}/appointments_router/`, { headers }).then(res => setAppointments(res.data));
+        axios.get(`${API}/users_router/`, { headers }).then(res => setUsers(res.data));
+    };
 
     const addDoctor = async (e) => {
         e.preventDefault();
         try {
-            const res = await axios.post('https://7420-s1-assignment2.vercel.app/doctors/create/', newDoctor, {
-                headers: { Authorization: `Token ${token}` }
-            });
+            const res = await axios.post(`${API}/doctors/create/`, newDoctor, { headers });
             setDoctors([...doctors, res.data]);
             setNewDoctor({ name: '', specialty: '', username: '', password: '' });
-        } catch (err) {
-            console.log(err);
-        }
+        } catch (err) { alert('Failed to add doctor.'); }
     };
 
     const deleteDoctor = async (id) => {
         try {
-            await axios.delete(`https://7420-s1-assignment2.vercel.app/doctors_router/${id}/`, {
-                headers: { Authorization: `Token ${token}` }
-            });
+            await axios.delete(`${API}/doctors_router/${id}/`, { headers });
             setDoctors(doctors.filter(d => d.id !== id));
-        } catch (err) {
-            console.log(err);
-        }
+        } catch (err) { console.log(err); }
     };
 
     const updateDoctor = async (id) => {
         try {
-            await axios.put(`https://7420-s1-assignment2.vercel.app/doctors/${id}/update/`, editDoctor, {
-                headers: { Authorization: `Token ${token}` }
-            });
+            await axios.put(`${API}/doctors/${id}/update/`, editDoctor, { headers });
             setDoctors(doctors.map(d => d.id === id ? { ...d, ...editDoctor } : d));
             setEditingDoctorId(null);
-        } catch (err) {
-            console.log(err);
-        }
+        } catch (err) { console.log(err); }
     };
 
     const addSlot = async (e) => {
         e.preventDefault();
         try {
-            const res = await axios.post('https://7420-s1-assignment2.vercel.app/slots_router/', {
-            ...newSlot,
-            is_booked: false
-            }, {
-            headers: { Authorization: `Token ${token}` }
-            });
+            const res = await axios.post(`${API}/slots_router/`, { ...newSlot, is_booked: false }, { headers });
             setSlots([...slots, res.data]);
             setNewSlot({ doctor: '', date: '', time: '' });
-        } catch (err) {
-            alert('This slot already exists for this doctor!');
-        }
+        } catch (err) { alert('This slot already exists!'); }
     };
+
     const deleteSlot = async (id) => {
         try {
-            await axios.delete(`https://7420-s1-assignment2.vercel.app/slots_router/${id}/`, {
-                headers: { Authorization: `Token ${token}` }
-            });
+            await axios.delete(`${API}/slots_router/${id}/`, { headers });
             setSlots(slots.filter(s => s.id !== id));
-        } catch (err) {
-            console.log(err);
-        }
+        } catch (err) { console.log(err); }
+    };
+
+    const updateSlot = async (id) => {
+        try {
+            await axios.patch(`${API}/slots_router/${id}/`, editSlot, { headers });
+            setSlots(slots.map(s => s.id === id ? { ...s, ...editSlot } : s));
+            setEditingSlotId(null);
+        } catch (err) { console.log(err); }
     };
 
     const cancelAppointment = async (id) => {
         try {
             const appointment = appointments.find(a => a.id === id);
-            await axios.patch(`https://7420-s1-assignment2.vercel.app/slots_router/${appointment.slot}/`, {
-                is_booked: false
-            }, {
-                headers: { Authorization: `Token ${token}` }
-            });
-            await axios.delete(`https://7420-s1-assignment2.vercel.app/appointments_router/${id}/`, {
-                headers: { Authorization: `Token ${token}` }
-            });
+            await axios.patch(`${API}/slots_router/${appointment.slot}/`, { is_booked: false }, { headers });
+            await axios.delete(`${API}/appointments_router/${id}/`, { headers });
             setAppointments(appointments.filter(a => a.id !== id));
-        } catch (err) {
-            console.log(err);
-        }
+        } catch (err) { console.log(err); }
+    };
+
+    const updateAppointment = async (id) => {
+        try {
+            const old = appointments.find(a => a.id === id);
+            await axios.patch(`${API}/slots_router/${old.slot}/`, { is_booked: false }, { headers });
+            await axios.patch(`${API}/appointments_router/${id}/`, { slot: editAppointment.slot }, { headers });
+            await axios.patch(`${API}/slots_router/${editAppointment.slot}/`, { is_booked: true }, { headers });
+            fetchAll();
+            setEditingAppointmentId(null);
+        } catch (err) { console.log(err); }
     };
 
     const deleteUser = async (id) => {
         try {
-            await axios.delete(`https://7420-s1-assignment2.vercel.app/users_router/${id}/`, {
-                headers: { Authorization: `Token ${token}` }
-            });
+            await axios.delete(`${API}/users_router/${id}/`, { headers });
             setUsers(users.filter(u => u.id !== id));
+        } catch (err) { console.log(err); }
+    };
+
+    const createPatient = async (e) => {
+        e.preventDefault();
+        try {
+            await axios.post(`${API}/register/`, { ...newPatient, is_patient: true, is_admin: false }, { headers });
+            setNewPatient({ username: '', email: '', password: '' });
+            axios.get(`${API}/users_router/`, { headers }).then(res => setUsers(res.data));
+            alert('Patient created!');
+        } catch (err) { alert('Failed to create patient.'); }
+    };
+
+    const createBooking = async (e) => {
+        e.preventDefault();
+        try {
+            await axios.post(`${API}/appointments_router/`, { slot: newBooking.slot, status: 'booked' }, { headers });
+            await axios.patch(`${API}/slots_router/${newBooking.slot}/`, { is_booked: true }, { headers });
+            setNewBooking({ user: '', slot: '' });
+            fetchAll();
+            alert('Booking created!');
         } catch (err) {
-            console.log(err);
+            const msg = err.response?.data?.slot?.[0] || 'Failed to create booking.';
+            alert(msg);
         }
     };
 
     return (
-        <div>
+        <div className="container mt-4">
             <h2 className="mb-4">Admin Dashboard</h2>
 
             {/* Add Doctor */}
             <div className="card shadow-sm mb-4">
                 <div className="card-body">
-                    <h4 className="card-title">Add Doctor</h4>
-                    <form onSubmit={addDoctor} className="d-flex gap-2">
-                        <input
-                            type="text"
-                            className="form-control"
-                            placeholder="Doctor Name"
-                            value={newDoctor.name}
-                            onChange={(e) => setNewDoctor({ ...newDoctor, name: e.target.value })}
-                        />
-                        <input
-                            type="text"
-                            className="form-control"
-                            placeholder="Specialty"
-                            value={newDoctor.specialty}
-                            onChange={(e) => setNewDoctor({ ...newDoctor, specialty: e.target.value })}
-                        />
-                        <input
-                            type="text"
-                            className="form-control"
-                            placeholder="Username (for doctor login)"
-                            value={newDoctor.username}
-                            onChange={(e) => setNewDoctor({ ...newDoctor, username: e.target.value })}
-                        />
-                        <input
-                            type="password"
-                            className="form-control"
-                            placeholder="Password (for doctor login)"
-                            value={newDoctor.password}
-                            onChange={(e) => setNewDoctor({ ...newDoctor, password: e.target.value })}
-                        />
+                    <h4>Add Doctor</h4>
+                    <form onSubmit={addDoctor} className="d-flex gap-2 flex-wrap">
+                        <input type="text" className="form-control" placeholder="Doctor Name" value={newDoctor.name} onChange={e => setNewDoctor({ ...newDoctor, name: e.target.value })} />
+                        <input type="text" className="form-control" placeholder="Specialty" value={newDoctor.specialty} onChange={e => setNewDoctor({ ...newDoctor, specialty: e.target.value })} />
+                        <input type="text" className="form-control" placeholder="Username" value={newDoctor.username} onChange={e => setNewDoctor({ ...newDoctor, username: e.target.value })} />
+                        <input type="password" className="form-control" placeholder="Password" value={newDoctor.password} onChange={e => setNewDoctor({ ...newDoctor, password: e.target.value })} />
                         <button type="submit" className="btn btn-primary">Add</button>
                     </form>
                 </div>
@@ -171,24 +153,13 @@ function AdminDashboard() {
             {/* Doctors List */}
             <div className="card shadow-sm mb-4">
                 <div className="card-body">
-                    <h4 className="card-title">Doctors</h4>
+                    <h4>Doctors</h4>
                     {doctors.map(doctor => (
                         <div key={doctor.id} className="d-flex justify-content-between align-items-center mb-2 p-2 border rounded">
                             {editingDoctorId === doctor.id ? (
                                 <div className="d-flex gap-2 w-100">
-                                    <input
-                                        type="text"
-                                        className="form-control"
-                                        value={editDoctor.name}
-                                        onChange={(e) => setEditDoctor({ ...editDoctor, name: e.target.value })}
-                                    />
-                                    <input
-                                        type="text"
-                                        className="form-control"
-                                        value={editDoctor.specialty}
-                                        onChange={(e) => setEditDoctor({ ...editDoctor, specialty: e.target.value })}
-                                    />
-
+                                    <input type="text" className="form-control" value={editDoctor.name} onChange={e => setEditDoctor({ ...editDoctor, name: e.target.value })} />
+                                    <input type="text" className="form-control" value={editDoctor.specialty} onChange={e => setEditDoctor({ ...editDoctor, specialty: e.target.value })} />
                                     <button className="btn btn-success btn-sm" onClick={() => updateDoctor(doctor.id)}>Save</button>
                                     <button className="btn btn-secondary btn-sm" onClick={() => setEditingDoctorId(null)}>Cancel</button>
                                 </div>
@@ -209,30 +180,26 @@ function AdminDashboard() {
             {/* Add Slot */}
             <div className="card shadow-sm mb-4">
                 <div className="card-body">
-                    <h4 className="card-title">Add Slot</h4>
+                    <h4>Add Slot</h4>
                     <form onSubmit={addSlot} className="d-flex gap-2">
-                        <select
-                            className="form-select"
-                            value={newSlot.doctor}
-                            onChange={(e) => setNewSlot({ ...newSlot, doctor: e.target.value })}
-                        >
+                        <select className="form-select" value={newSlot.doctor} onChange={e => setNewSlot({ ...newSlot, doctor: e.target.value })}>
                             <option value="">Select Doctor</option>
-                            {doctors.map(doctor => (
-                                <option key={doctor.id} value={doctor.id}>{doctor.name}</option>
-                            ))}
+                            {doctors.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
                         </select>
-                        <input
-                            type="date"
-                            className="form-control"
-                            value={newSlot.date}
-                            onChange={(e) => setNewSlot({ ...newSlot, date: e.target.value })}
-                        />
-                        <input
-                            type="time"
-                            className="form-control"
-                            value={newSlot.time}
-                            onChange={(e) => setNewSlot({ ...newSlot, time: e.target.value })}
-                        />
+                        <input type="date" className="form-control" value={newSlot.date} min={today} onChange={e => setNewSlot({ ...newSlot, date: e.target.value })} />
+                        <select className="form-control" value={newSlot.time} onChange={e => setNewSlot({ ...newSlot, time: e.target.value })}>
+                            <option value="">Select Time</option>
+                            <option value="08:00">08:00 AM</option>
+                            <option value="09:00">09:00 AM</option>
+                            <option value="10:00">10:00 AM</option>
+                            <option value="11:00">11:00 AM</option>
+                            <option value="12:00">12:00 PM</option>
+                            <option value="13:00">01:00 PM</option>
+                            <option value="14:00">02:00 PM</option>
+                            <option value="15:00">03:00 PM</option>
+                            <option value="16:00">04:00 PM</option>
+                            <option value="17:00">05:00 PM</option>
+                        </select>
                         <button type="submit" className="btn btn-primary">Add</button>
                     </form>
                 </div>
@@ -241,11 +208,37 @@ function AdminDashboard() {
             {/* All Slots */}
             <div className="card shadow-sm mb-4">
                 <div className="card-body">
-                    <h4 className="card-title">All Slots</h4>
+                    <h4>All Slots</h4>
                     {slots.map(slot => (
                         <div key={slot.id} className="d-flex justify-content-between align-items-center mb-2 p-2 border rounded">
-                            <span>👨‍⚕️ {slot.doctor_name} | 📅 {slot.date} ⏰ {slot.time} | {slot.is_booked ? <span className="badge bg-danger">Booked</span> : <span className="badge bg-success">Available</span>}</span>
-                            <button className="btn btn-danger btn-sm" onClick={() => deleteSlot(slot.id)}>Delete</button>
+                            {editingSlotId === slot.id ? (
+                                <div className="d-flex gap-2 w-100">
+                                    <input type="date" className="form-control" value={editSlot.date} min={today} onChange={e => setEditSlot({ ...editSlot, date: e.target.value })} />
+                                    <select className="form-control" value={editSlot.time} onChange={e => setEditSlot({ ...editSlot, time: e.target.value })}>
+                                        <option value="">Select Time</option>
+                                        <option value="08:00">08:00 AM</option>
+                                        <option value="09:00">09:00 AM</option>
+                                        <option value="10:00">10:00 AM</option>
+                                        <option value="11:00">11:00 AM</option>
+                                        <option value="12:00">12:00 PM</option>
+                                        <option value="13:00">01:00 PM</option>
+                                        <option value="14:00">02:00 PM</option>
+                                        <option value="15:00">03:00 PM</option>
+                                        <option value="16:00">04:00 PM</option>
+                                        <option value="17:00">05:00 PM</option>
+                                    </select>
+                                    <button className="btn btn-success btn-sm" onClick={() => updateSlot(slot.id)}>Save</button>
+                                    <button className="btn btn-secondary btn-sm" onClick={() => setEditingSlotId(null)}>Cancel</button>
+                                </div>
+                            ) : (
+                                <>
+                                    <span>👨‍⚕️ {slot.doctor_name} | 📅 {slot.date} ⏰ {slot.time} | {slot.is_booked ? <span className="badge bg-danger">Booked</span> : <span className="badge bg-success">Available</span>}</span>
+                                    <div>
+                                        <button className="btn btn-warning btn-sm me-2" onClick={() => { setEditingSlotId(slot.id); setEditSlot({ date: slot.date, time: slot.time }); }}>Edit</button>
+                                        <button className="btn btn-danger btn-sm" onClick={() => deleteSlot(slot.id)}>Delete</button>
+                                    </div>
+                                </>
+                            )}
                         </div>
                     ))}
                 </div>
@@ -254,21 +247,68 @@ function AdminDashboard() {
             {/* All Appointments */}
             <div className="card shadow-sm mb-4">
                 <div className="card-body">
-                    <h4 className="card-title">All Appointments</h4>
+                    <h4>All Appointments</h4>
                     {appointments.length === 0 && <p className="text-muted">No appointments.</p>}
-                    {appointments.map(appointment => (
-                        <div key={appointment.id} className="d-flex justify-content-between align-items-center mb-2 p-2 border rounded">
-                            <span>ID: {appointment.id} | Slot: {appointment.slot} | Status: <span className="badge bg-success">{appointment.status}</span></span>
-                            <button className="btn btn-danger btn-sm" onClick={() => cancelAppointment(appointment.id)}>Cancel</button>
+                    {appointments.map(apt => (
+                        <div key={apt.id} className="d-flex justify-content-between align-items-center mb-2 p-2 border rounded">
+                            {editingAppointmentId === apt.id ? (
+                                <div className="d-flex gap-2 w-100">
+                                    <select className="form-select" value={editAppointment.slot} onChange={e => setEditAppointment({ slot: e.target.value })}>
+                                        <option value="">Select New Slot</option>
+                                        {slots.filter(s => !s.is_booked).map(s => (
+                                            <option key={s.id} value={s.id}>{s.doctor_name} | {s.date} {s.time}</option>
+                                        ))}
+                                    </select>
+                                    <button className="btn btn-success btn-sm" onClick={() => updateAppointment(apt.id)}>Save</button>
+                                    <button className="btn btn-secondary btn-sm" onClick={() => setEditingAppointmentId(null)}>Cancel</button>
+                                </div>
+                            ) : (
+                                <>
+                                    <span>👤 User: {apt.user} | 📅 Slot: {apt.slot} | Status: <span className="badge bg-success">{apt.status}</span></span>
+                                    <div>
+                                        <button className="btn btn-warning btn-sm me-2" onClick={() => { setEditingAppointmentId(apt.id); setEditAppointment({ slot: apt.slot }); }}>Edit</button>
+                                        <button className="btn btn-danger btn-sm" onClick={() => cancelAppointment(apt.id)}>Cancel</button>
+                                    </div>
+                                </>
+                            )}
                         </div>
                     ))}
+                </div>
+            </div>
+
+            {/* Create Patient */}
+            <div className="card shadow-sm mb-4">
+                <div className="card-body">
+                    <h4>Create Patient Account</h4>
+                    <form onSubmit={createPatient} className="d-flex gap-2 flex-wrap">
+                        <input type="text" className="form-control" placeholder="Username" value={newPatient.username} onChange={e => setNewPatient({ ...newPatient, username: e.target.value })} />
+                        <input type="email" className="form-control" placeholder="Email" value={newPatient.email} onChange={e => setNewPatient({ ...newPatient, email: e.target.value })} />
+                        <input type="password" className="form-control" placeholder="Password" value={newPatient.password} onChange={e => setNewPatient({ ...newPatient, password: e.target.value })} />
+                        <button type="submit" className="btn btn-success">Create</button>
+                    </form>
+                </div>
+            </div>
+
+            {/* Create Booking */}
+            <div className="card shadow-sm mb-4">
+                <div className="card-body">
+                    <h4>Create Booking for Patient</h4>
+                    <form onSubmit={createBooking} className="d-flex gap-2">
+                        <select className="form-select" value={newBooking.slot} onChange={e => setNewBooking({ ...newBooking, slot: e.target.value })}>
+                            <option value="">Select Available Slot</option>
+                            {slots.filter(s => !s.is_booked).map(s => (
+                                <option key={s.id} value={s.id}>{s.doctor_name} | {s.date} {s.time}</option>
+                            ))}
+                        </select>
+                        <button type="submit" className="btn btn-primary">Book</button>
+                    </form>
                 </div>
             </div>
 
             {/* Patient Accounts */}
             <div className="card shadow-sm mb-4">
                 <div className="card-body">
-                    <h4 className="card-title">Patient Accounts</h4>
+                    <h4>Patient Accounts</h4>
                     {users.filter(u => u.is_patient).map(user => (
                         <div key={user.id} className="d-flex justify-content-between align-items-center mb-2 p-2 border rounded">
                             <span>👤 {user.username} - {user.email}</span>

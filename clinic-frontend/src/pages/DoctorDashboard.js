@@ -51,7 +51,6 @@ function DoctorDashboard() {
         <div className="container mt-4">
             <h2 className="mb-4">👨‍⚕️ Doctor Dashboard</h2>
 
-            {/* 내 슬롯 관리 */}
             <div className="card mb-4 shadow-sm">
                 <div className="card-body">
                     <h4>My Slots</h4>
@@ -96,7 +95,6 @@ function DoctorDashboard() {
                 </div>
             </div>
 
-            {/* 내 예약 목록 */}
             <div className="card shadow-sm">
                 <div className="card-body">
                     <h4>Patient Appointments</h4>

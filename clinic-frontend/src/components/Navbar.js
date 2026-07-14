@@ -4,6 +4,8 @@ function Navbar() {
     const token = localStorage.getItem('token');
     const username = localStorage.getItem('username');
     const isAdmin = localStorage.getItem('isAdmin') === 'true';
+    const displayName = localStorage.getItem('displayName') || localStorage.getItem('username');
+
 
     const handleLogout = () => {
         localStorage.removeItem('token');
@@ -20,7 +22,7 @@ function Navbar() {
                     <a href="/doctors" className="nav-link text-white">Doctors</a>
                     <a href="/appointments" className="nav-link text-white">My Appointments</a>
                     {isAdmin && <a href="/admin" className="nav-link text-white">Admin</a>}
-                    <span className="text-white">Hi, {username}</span>
+                    <span className="text-white">Hi, {displayName}</span>
                     <button onClick={handleLogout} className="btn btn-outline-light btn-sm">Logout</button>
                 </div>
             )}

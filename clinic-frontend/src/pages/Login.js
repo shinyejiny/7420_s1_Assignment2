@@ -30,6 +30,7 @@ function Login() {
             if (userDetail.data.is_admin) {
                 window.location.href = '/admin';
             } else if (userDetail.data.is_doctor){
+                localStorage.setItem('displayName', userDetail.data.doctor_name || username);
                 window.location.href = ('/doctor-dashboard');
             } else {
                 window.location.href=('/doctors');

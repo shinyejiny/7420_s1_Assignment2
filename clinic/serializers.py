@@ -17,7 +17,13 @@ class DoctorSerializer(serializers.ModelSerializer):
             doctor = Doctor.objects.create(**validated_data)
             if username and password:
                 User = get_user_model()
-                user = User.objects.create_user(username, password=password)
+                user = User.objects.create_user(
+                    username,
+                    password=password,
+                    is_doctor=True,
+                    is_patient=False,
+                    is_admin=False
+                )
                 doctor.user = user
                 doctor.save()
             return doctor

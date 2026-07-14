@@ -28,11 +28,13 @@ function Login() {
             localStorage.setItem('isDoctor', userDetail.data.is_doctor)
 
             if (userDetail.data.is_admin) {
+                localStorage.setItem('displayName', username)
                 window.location.href = '/admin';
             } else if (userDetail.data.is_doctor){
                 localStorage.setItem('displayName', userDetail.data.doctor_name || username);
                 window.location.href = ('/doctor-dashboard');
             } else {
+                localStorage.setItem('displayName', username)
                 window.location.href=('/doctors');
             }
         } catch (err) {

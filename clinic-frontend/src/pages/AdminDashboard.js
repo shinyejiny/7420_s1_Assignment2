@@ -244,7 +244,7 @@ function AdminDashboard() {
                     <h4 className="card-title">All Slots</h4>
                     {slots.map(slot => (
                         <div key={slot.id} className="d-flex justify-content-between align-items-center mb-2 p-2 border rounded">
-                            <span>📅 {slot.date} ⏰ {slot.time} | {slot.is_booked ? <span className="badge bg-danger">Booked</span> : <span className="badge bg-success">Available</span>}</span>
+                            <span>👨‍⚕️ {slot.doctor_name} | 📅 {slot.date} ⏰ {slot.time} | {slot.is_booked ? <span className="badge bg-danger">Booked</span> : <span className="badge bg-success">Available</span>}</span>
                             <button className="btn btn-danger btn-sm" onClick={() => deleteSlot(slot.id)}>Delete</button>
                         </div>
                     ))}

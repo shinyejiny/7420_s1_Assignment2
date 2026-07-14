@@ -29,6 +29,8 @@ class DoctorSerializer(serializers.ModelSerializer):
             return doctor
 
 class SlotSerializer(serializers.ModelSerializer):
+    doctor_name = serializers.CharField(source='doctor.name', read_only=True)
+
     class Meta:
         model = Slot
         fields = '__all__'

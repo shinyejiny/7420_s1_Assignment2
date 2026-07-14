@@ -55,23 +55,35 @@ function DoctorDashboard() {
             <div className="card mb-4 shadow-sm">
                 <div className="card-body">
                     <h4>My Slots</h4>
-                    <div className="d-flex gap-2 mb-3">
-                        <input
-                            type="date"
-                            className="form-control"
-                            value={newSlot.date}
-                            onChange={e => setNewSlot({ ...newSlot, date: e.target.value })}
-                        />
-                        <input
-                            type="time"
-                            className="form-control"
-                            value={newSlot.time}
-                            onChange={e => setNewSlot({ ...newSlot, time: e.target.value })}
-                        />
-                        <button className="btn btn-primary" onClick={addSlot}>
-                            Add Slot
-                        </button>
-                    </div>
+ <div className="d-flex gap-2 mb-3">
+    <input
+        type="date"
+        className="form-control"
+        value={newSlot.date}
+        min={new Date().toISOString().split('T')[0]}
+        onChange={e => setNewSlot({ ...newSlot, date: e.target.value })}
+    />
+    <select
+        className="form-control"
+        value={newSlot.time}
+        onChange={e => setNewSlot({ ...newSlot, time: e.target.value })}
+    >
+        <option value="">Select Time</option>
+        <option value="08:00">08:00 AM</option>
+        <option value="09:00">09:00 AM</option>
+        <option value="10:00">10:00 AM</option>
+        <option value="11:00">11:00 AM</option>
+        <option value="12:00">12:00 PM</option>
+        <option value="13:00">01:00 PM</option>
+        <option value="14:00">02:00 PM</option>
+        <option value="15:00">03:00 PM</option>
+        <option value="16:00">04:00 PM</option>
+        <option value="17:00">05:00 PM</option>
+    </select>
+    <button className="btn btn-primary" onClick={addSlot}>
+        Add Slot
+    </button>
+</div>
                     {slots.length === 0 && <p className="text-muted">No slots yet.</p>}
                     {slots.map(slot => (
                         <div key={slot.id} className="d-flex justify-content-between align-items-center mb-2 p-2 border rounded">

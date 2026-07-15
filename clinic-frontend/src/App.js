@@ -10,7 +10,6 @@ import DoctorDashboard from './pages/DoctorDashboard';
 
 function App() {
     const token = localStorage.getItem('token');
-    const isAdmin = localStorage.getItem('isAdmin') === 'true';
 
     return (
         <Router>
@@ -19,16 +18,12 @@ function App() {
                 <Routes>
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />
+                    <Route path="/" element={<Login />} />
                     <Route path="/doctors" element={token ? <DoctorList /> : <Navigate to="/login" />} />
                     <Route path="/appointments" element={token ? <Appointments /> : <Navigate to="/login" />} />
-                    <Route path="/admin"
-                    element={token ? <AdminDashboard /> : <Navigate to="/login" />}
-                    />                    <Route path="/" element={<Login />} />
-                    <Route path="/doctor-dashboard"
-                    element={token ? <DoctorDashboard /> : <Navigate to="/login" />}
-                    />
-
-/>                </Routes>
+                    <Route path="/admin" element={token ? <AdminDashboard /> : <Navigate to="/login" />} />
+                    <Route path="/doctor-dashboard" element={token ? <DoctorDashboard /> : <Navigate to="/login" />} />
+                </Routes>
             </div>
         </Router>
     );

@@ -10,22 +10,20 @@ function DoctorDashboard() {
     const [newSlot, setNewSlot] = useState({ date: '', time: '' });
     const token = localStorage.getItem('token');
     const headers = { Authorization: `Token ${token}` };
+    const today = new Date().toISOString().split('T')[0];
 
     useEffect(() => {
         fetchAppointments();
         fetchSlots();
-        axios.get(`${API}/doctors/`, { headers })
-            .then(res => setDoctors(res.data));
+        axios.get(`${API}/doctors/`, { headers }).then(res => setDoctors(res.data));
     }, []);
 
     const fetchAppointments = () => {
-        axios.get(`${API}/doctor-appointments/`, { headers })
-            .then(res => setAppointments(res.data));
+        axios.get(`${API}/doctor-appointments/`, { headers }).then(res => setAppointments(res.data));
     };
 
     const fetchSlots = () => {
-        axios.get(`${API}/doctor-slots/`, { headers })
-            .then(res => setSlots(res.data));
+        axios.get(`${API}/doctor-slots/`, { headers }).then(res => setSlots(res.data));
     };
 
     const getDoctorName = (doctorId) => {
@@ -36,6 +34,26 @@ function DoctorDashboard() {
     const getSlotInfo = (slotId) => {
         const slot = slots.find(s => s.id === slotId);
         return slot ? `📅 ${slot.date} ⏰ ${slot.time}` : `Slot #${slotId}`;
+    };
+
+    const getAvailableTimes = (selectedDate) => {
+        const allTimes = [
+            { value: '08:00', label: '08:00 AM' },
+            { value: '09:00', label: '09:00 AM' },
+            { value: '10:00', label: '10:00 AM' },
+            { value: '11:00', label: '11:00 AM' },
+            { value: '12:00', label: '12:00 PM' },
+            { value: '13:00', label: '01:00 PM' },
+            { value: '14:00', label: '02:00 PM' },
+            { value: '15:00', label: '03:00 PM' },
+            { value: '16:00', label: '04:00 PM' },
+            { value: '17:00', label: '05:00 PM' },
+        ];
+        if (selectedDate === today) {
+            const currentHour = new Date().getHours();
+            return allTimes.filter(t => parseInt(t.value) > currentHour);
+        }
+        return allTimes;
     };
 
     const addSlot = async () => {
@@ -55,8 +73,7 @@ function DoctorDashboard() {
     };
 
     const updateAppointmentStatus = async (aptId, status) => {
-        await axios.patch(`${API}/doctor-appointments/${aptId}/update/`,
-            { status }, { headers });
+        await axios.patch(`${API}/doctor-appointments/${aptId}/update/`, { status }, { headers });
         fetchAppointments();
     };
 
@@ -72,8 +89,8 @@ function DoctorDashboard() {
                             type="date"
                             className="form-control"
                             value={newSlot.date}
-                            min={new Date().toISOString().split('T')[0]}
-                            onChange={e => setNewSlot({ ...newSlot, date: e.target.value })}
+                            min={today}
+                            onChange={e => setNewSlot({ ...newSlot, date: e.target.value, time: '' })}
                         />
                         <select
                             className="form-control"
@@ -81,28 +98,17 @@ function DoctorDashboard() {
                             onChange={e => setNewSlot({ ...newSlot, time: e.target.value })}
                         >
                             <option value="">Select Time</option>
-                            <option value="08:00">08:00 AM</option>
-                            <option value="09:00">09:00 AM</option>
-                            <option value="10:00">10:00 AM</option>
-                            <option value="11:00">11:00 AM</option>
-                            <option value="12:00">12:00 PM</option>
-                            <option value="13:00">01:00 PM</option>
-                            <option value="14:00">02:00 PM</option>
-                            <option value="15:00">03:00 PM</option>
-                            <option value="16:00">04:00 PM</option>
-                            <option value="17:00">05:00 PM</option>
+                            {getAvailableTimes(newSlot.date).map(t => (
+                                <option key={t.value} value={t.value}>{t.label}</option>
+                            ))}
                         </select>
-                        <button className="btn btn-primary" onClick={addSlot}>
-                            Add Slot
-                        </button>
+                        <button className="btn btn-primary" onClick={addSlot}>Add Slot</button>
                     </div>
                     {slots.length === 0 && <p className="text-muted">No slots yet.</p>}
                     {slots.map(slot => (
                         <div key={slot.id} className="d-flex justify-content-between align-items-center mb-2 p-2 border rounded">
                             <span>👨‍⚕️ {getDoctorName(slot.doctor)} | 📅 {slot.date} ⏰ {slot.time} — {slot.is_booked ? '🔴 Booked' : '🟢 Available'}</span>
-                            <button className="btn btn-danger btn-sm" onClick={() => deleteSlot(slot.id)}>
-                                Delete
-                            </button>
+                            <button className="btn btn-danger btn-sm" onClick={() => deleteSlot(slot.id)}>Delete</button>
                         </div>
                     ))}
                 </div>
@@ -118,12 +124,8 @@ function DoctorDashboard() {
                                 {getSlotInfo(apt.slot)} — Status: <span className={`badge ${apt.status === 'accepted' ? 'bg-success' : apt.status === 'rejected' ? 'bg-danger' : 'bg-warning'}`}>{apt.status}</span>
                             </span>
                             <div className="d-flex gap-2">
-                                <button className="btn btn-success btn-sm" onClick={() => updateAppointmentStatus(apt.id, 'accepted')}>
-                                    Accept
-                                </button>
-                                <button className="btn btn-danger btn-sm" onClick={() => updateAppointmentStatus(apt.id, 'rejected')}>
-                                    Reject
-                                </button>
+                                <button className="btn btn-success btn-sm" onClick={() => updateAppointmentStatus(apt.id, 'accepted')}>Accept</button>
+                                <button className="btn btn-danger btn-sm" onClick={() => updateAppointmentStatus(apt.id, 'rejected')}>Reject</button>
                             </div>
                         </div>
                     ))}

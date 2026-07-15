@@ -11,7 +11,7 @@ function AdminDashboard() {
     const [newDoctor, setNewDoctor] = useState({ name: '', specialty: '', username: '', password: '' });
     const [newSlot, setNewSlot] = useState({ doctor: '', date: '', time: '' });
     const [newPatient, setNewPatient] = useState({ username: '', email: '', password: '' });
-    const [newBooking, setNewBooking] = useState({ slot: '' });
+    const [newBooking, setNewBooking] = useState({ user: '', slot: '' });
     const [editingDoctorId, setEditingDoctorId] = useState(null);
     const [editDoctor, setEditDoctor] = useState({ name: '', specialty: '' });
     const [editingSlotId, setEditingSlotId] = useState(null);
@@ -124,17 +124,21 @@ function AdminDashboard() {
     };
 
     const createBooking = async (e) => {
-        e.preventDefault();
-        try {
-            await axios.post(`${API}/appointments_router/`, { slot: newBooking.slot, status: 'booked' }, { headers });
-            await axios.patch(`${API}/slots_router/${newBooking.slot}/`, { is_booked: true }, { headers });
-            setNewBooking({ slot: '' });
-            fetchAll();
-            alert('Booking created!');
-        } catch (err) {
-            alert(err.response?.data?.slot?.[0] || 'Failed to create booking.');
-        }
-    };
+    e.preventDefault();
+    try {
+        await axios.post(`${API}/appointments_router/`, {
+            slot: newBooking.slot,
+            status: 'booked',
+            user: newBooking.user   // ← user 추가
+        }, { headers });
+        await axios.patch(`${API}/slots_router/${newBooking.slot}/`, { is_booked: true }, { headers });
+        setNewBooking({ user: '', slot: '' });
+        fetchAll();
+        alert('Booking created!');
+    } catch (err) {
+        alert(err.response?.data?.slot?.[0] || 'Failed to create booking.');
+    }
+};
 
     return (
         <div className="container mt-4">
@@ -281,19 +285,33 @@ function AdminDashboard() {
 
             {/* Create Booking */}
             <div className="card shadow-sm mb-4">
-                <div className="card-body">
-                    <h4>Create Booking for Patient</h4>
-                    <form onSubmit={createBooking} className="d-flex gap-2">
-                        <select className="form-select" value={newBooking.slot} onChange={e => setNewBooking({ slot: e.target.value })}>
-                            <option value="">Select Available Slot</option>
-                            {slots.filter(s => !s.is_booked).map(s => (
-                                <option key={s.id} value={s.id}>{s.doctor_name} | {s.date} {s.time}</option>
-                            ))}
-                        </select>
-                        <button type="submit" className="btn btn-primary">Book</button>
-                    </form>
-                </div>
-            </div>
+    <div className="card-body">
+        <h4>Create Booking for Patient</h4>
+        <form onSubmit={createBooking} className="d-flex gap-2">
+            <select
+                className="form-select"
+                value={newBooking.user}
+                onChange={e => setNewBooking({ ...newBooking, user: e.target.value })}
+            >
+                <option value="">Select Patient</option>
+                {users.filter(u => u.is_patient).map(u => (
+                    <option key={u.id} value={u.id}>{u.username}</option>
+                ))}
+            </select>
+            <select
+                className="form-select"
+                value={newBooking.slot}
+                onChange={e => setNewBooking({ ...newBooking, slot: e.target.value })}
+            >
+                <option value="">Select Available Slot</option>
+                {slots.filter(s => !s.is_booked).map(s => (
+                    <option key={s.id} value={s.id}>{s.doctor_name} | {s.date} {s.time}</option>
+                ))}
+            </select>
+            <button type="submit" className="btn btn-primary">Book</button>
+        </form>
+    </div>
+</div>
 
             {/* Patient Accounts */}
             <div className="card shadow-sm mb-4">

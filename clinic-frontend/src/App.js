@@ -21,10 +21,13 @@ function App() {
                     <Route path="/register" element={<Register />} />
                     <Route path="/doctors" element={token ? <DoctorList /> : <Navigate to="/login" />} />
                     <Route path="/appointments" element={token ? <Appointments /> : <Navigate to="/login" />} />
-                    <Route path="/admin" element={isAdmin ? <AdminDashboard /> : <Navigate to="/login" />} />
-                    <Route path="/" element={<Login />} />
+                    <Route path="/admin"
+                    element={token ? <AdminDashboard /> : <Navigate to="/login" />}
+                    />                    <Route path="/" element={<Login />} />
                     <Route path="/doctor-dashboard"
                     element={token ? <DoctorDashboard /> : <Navigate to="/login" />}
+                    />
+
 />                </Routes>
             </div>
         </Router>

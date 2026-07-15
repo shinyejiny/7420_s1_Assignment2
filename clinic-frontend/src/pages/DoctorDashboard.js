@@ -50,6 +50,7 @@ function DoctorDashboard() {
             { value: '17:00', label: '05:00 PM' },
         ];
         if (selectedDate === today) {
+            const nzTime = new Date().toLocaleString('en-NZ', { timeZone: 'Pacific/Auckland' });
             const currentHour = new Date().getHours();
             return allTimes.filter(t => parseInt(t.value) > currentHour);
         }
